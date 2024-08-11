@@ -134,6 +134,7 @@ export default function ListFileComponent(probs: {
         {fileEntries && shouldRender ? (
           fileEntries?.map((file: HUGGINGFACE_FILES, i) => (
             <motion.div
+              key={i}
               initial={{ opacity: 0, y: "10vh" }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "-10vh" }}
