@@ -15,6 +15,8 @@ import { SunMoonIcon } from "lucide-react";
 import { toast } from "sonner"
 import { API_ENDPOINT } from "../utils/Endpoint"
 import { useRouter } from "next/navigation"
+import { usernameIsValid } from "../utils/OtherUtils"
+
 
 export default function RegisterForm() {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -46,6 +48,12 @@ export default function RegisterForm() {
 
         if(username.length < 6) {
             toast.error("Username too short")
+            return;
+        }
+
+        if(!usernameIsValid(username)) {
+            toast.error("Username is not valid")
+            return;
         }
 
         try {
