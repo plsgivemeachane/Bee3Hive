@@ -188,6 +188,11 @@ export default function ListFileComponent(probs: {
                       size="icon"
                       className={`rounded-full bg-primary text-muted dark:text-muted hover:bg-destructive hover:text-destructive-foreground`}
                       onClick={async () => {
+
+                        if(!confirm("Are you sure you want to permanently delete this file?")) {
+                          return;
+                        }
+                        
                         const res = await fetch(API_ENDPOINT + "file/delete", {
                           method: "POST",
                           headers: {

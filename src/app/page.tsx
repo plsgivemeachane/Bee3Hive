@@ -14,8 +14,6 @@ import { FileStorage } from "@/components/component/FileStorage";
 export default function Home() {
 
   return (
-    <div>
-        <FileStorage />
-    </div>
+      <FileStorage />
   );
 }

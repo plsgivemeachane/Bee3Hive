@@ -23,6 +23,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         {children}
+        {/* <nav className="bg-background p-2 flex justify-between mx-8">
+          <p>Bee3Hive</p>
+          <p>Do with ❤️ by quanvn</p>
+        </nav> */}
         <Toaster />
       </body>
     </html>
