@@ -200,7 +200,7 @@ export default function ListFileComponent(probs: {
                             "Content-Type": "application/json"
                           },
                           body: JSON.stringify({
-                            path: file.path
+                            filePath: file.path
                           }),
                           cache: "no-cache"
                         })
