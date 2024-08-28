@@ -144,6 +144,7 @@ export function FileStorage() {
             const xhr = new XMLHttpRequest();
             const formData = new FormData();
             formData.append("file", file);
+            formData.append("filePath", file.name);
 
             xhr.open("POST", API_ENDPOINT + "file/upload", true);
             xhr.setRequestHeader("Authorization", "Bearer " + getToken());

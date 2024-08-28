@@ -28,22 +28,28 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { isFileWithPreview } from "@/components/component/file-uploader";
 import { toast } from "sonner";
 
-interface HUGGINGFACE_FILES {
-  type: "file" | "directory" | "unknown"
-  path: string,
-  oid: string | null,
-  size: number | null,
-  lfs: {
-    oid: string,
-    size: number,
-    pointerSize: number
-  } | null
-}
+// interface HUGGINGFACE_FILES {
+//   type: "file" | "directory" | "unknown"
+//   path: string,
+//   oid: string | null,
+//   size: number | null,
+//   lfs: {
+//     oid: string,
+//     size: number,
+//     pointerSize: number
+//   } | null
+// }
 
-interface HUGGINGFACE_DOWNLOAD_INFO {
-  etag: string,
-  size: number,
-  downloadLink: string
+interface IPFS_FILES {
+  size: number;
+  type: string,
+  id: string,
+  created_at: string,
+  CID: string,
+  username: string,
+  handle: string,
+  dir: string
+
 }
 
 function getFilename(filepath: string) {
@@ -54,7 +60,7 @@ export default function ListFileComponent(probs: {
   viewMode: "grid" | "list";
   ref: any;
 }) {
-  const [fileEntries, setFiles] = useState<HUGGINGFACE_FILES[]>();
+  const [fileEntries, setFiles] = useState<IPFS_FILES[]>();
   const [path, setPath] = useState<string[]>([]);
   const [shouldRender, setShouldRender] = useState(true);
 
@@ -63,16 +69,19 @@ export default function ListFileComponent(probs: {
   useEffect(() => {
     (async () => {
       setShouldRender(false);
-      const files: any[] = [];
-      const res = await fetch(API_ENDPOINT + "file/list" + (path.length == 0 ? "" : "?path=" + encodeURI(path.join("/"))), {
+      const res = await fetch(API_ENDPOINT + "file/list", {
         method: "GET",
         headers: {
-          "Authorization": "Bearer " + getToken()
+          "Authorization": "Bearer " + getToken(),
+          // "Content-Type": "application/json",
         },
-        cache: "no-cache"
+        cache: "no-cache",
+        // body: JSON.stringify({
+        //   filePath
+        // })
       })
 
-      const raw_files = (await res.json()) as HUGGINGFACE_FILES[];
+      const raw_files = (await res.json()) as IPFS_FILES[];
 
       // const newFiles = raw_files.map((file: HUGGINGFACE_FILES) =>
       //   Object.assign(file, {
@@ -80,8 +89,9 @@ export default function ListFileComponent(probs: {
       //   })
       // );
 
-      files.push(...raw_files);
-      setFiles(files.filter((file) => !getFilename(file.path).startsWith(".")));
+      console.log(raw_files)
+
+      setFiles(raw_files);
       setShouldRender(true);
     })();
   }, [path]);
@@ -132,7 +142,7 @@ export default function ListFileComponent(probs: {
         }`}
       >
         {fileEntries && shouldRender ? (
-          fileEntries?.map((file: HUGGINGFACE_FILES, i) => (
+          fileEntries?.map((file: IPFS_FILES, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: "10vh" }}
@@ -145,7 +155,7 @@ export default function ListFileComponent(probs: {
                 onClick={() => {
                   if (file.type == "file") return;
                   // alert
-                  setPath([...path, file.path]);
+                  setPath([...path, file.dir]);
                 }}
               >
                 {file.type == "file" && (
@@ -164,7 +174,7 @@ export default function ListFileComponent(probs: {
                             "Content-Type": "application/json"
                           },
                           body: JSON.stringify({
-                            path: file.path
+                            filePath: file.dir
                           }),
                           cache: "no-cache"
                         })
@@ -176,8 +186,8 @@ export default function ListFileComponent(probs: {
                           return;
                         }
 
-                        const downloadURL: HUGGINGFACE_DOWNLOAD_INFO = await res.json();
-                        DownloadFile(downloadURL.downloadLink, getFilename(file.path));
+                        const downloadURL: string = await res.text();
+                        DownloadFile(downloadURL, getFilename(file.dir));
                       }}
                     >
                       <DownloadIcon className="h-5 w-5" />
@@ -200,7 +210,7 @@ export default function ListFileComponent(probs: {
                             "Content-Type": "application/json"
                           },
                           body: JSON.stringify({
-                            filePath: file.path
+                            filePath: file.dir
                           }),
                           cache: "no-cache"
                         })
@@ -229,7 +239,7 @@ export default function ListFileComponent(probs: {
                   <div className="flex gap-4 items-center">
                     {file.type == "directory" ? <FolderIcon /> : <FileIcon />}
                     <div className="line-clamp-1 text-md font-medium font-mono">
-                      {getFilename(file.path)}
+                      {getFilename(file.dir)}
                     </div>
                   </div>
                   <div
